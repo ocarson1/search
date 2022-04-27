@@ -2,6 +2,11 @@ import xml.etree.ElementTree as et
 import file_io
 import re
 import math
+from nltk.corpus import stopwords
+STOP_WORDS = set(stopwords.words('english'))
+from nltk.stem import PorterStemmer
+
+
 
 class Indexer:
 
@@ -10,12 +15,14 @@ class Indexer:
         to_return = {}
         doc_max_freqs = {}
         self.weight_dict = {}
+        stemmer = PorterStemmer()
 
         for page in root:
             pg_id = int(page.find('id').text)
             title: str = (page.find('title').text)
             n_regex = '''\[\[[^\[]+?\]\]|[a-zA-Z0-9]+'[a-zA-Z0-9]+|[a-zA-Z0-9]+'''
             words = re.findall(n_regex, title) + (re.findall(n_regex, page.find('text').text)) #Note: currently includes numbers. not sure if issue or not but handout says it is up to our own discretion
+            print(words)
             for word in words:
                 word_lst = [word] 
 
@@ -30,6 +37,9 @@ class Indexer:
 
                 for w in word_lst:
                     w = w.lower()
+                    stemmer.stem(w)
+                    if w in STOP_WORDS: 
+                        continue
                     if w not in to_return.keys():
                         to_return[w] = {}
                         to_return[w][pg_id] = 1
@@ -42,18 +52,17 @@ class Indexer:
                         doc_max_freqs[pg_id] = 1
                     elif to_return[w][pg_id] > doc_max_freqs[pg_id]:
                         doc_max_freqs[pg_id] = to_return[w][pg_id]
+                    
         print(to_return)
         for word in to_return:
             for pg_id in to_return[word]:
-                to_return[word][pg_id] = (to_return[word][pg_id] / doc_max_freqs[pg_id]) * math.log(len(doc_max_freqs) / len(to_return[word]))
-                print(len(doc_max_freqs))
-                print(len(to_return[word]))
-                
+                to_return[word][pg_id] = (to_return[word][pg_id] / doc_max_freqs[pg_id]) * math.log(len(doc_max_freqs) / len(to_return[word]))                
         print(to_return)
         print(doc_max_freqs)
 
 
     def weightCalculator(self, j_id : int, k_id : int): 
+        
             
 
 
