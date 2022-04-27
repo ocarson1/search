@@ -2,6 +2,8 @@ import xml.etree.ElementTree as et
 import file_io
 import re
 import math
+from nltk.corpus import stopwords
+STOP_WORDS = set(stopwords.words('english'))
 
 class Indexer:
 
@@ -32,6 +34,8 @@ class Indexer:
 
                 for w in word_lst:
                     w = w.lower()
+                    if w in STOP_WORDS:
+                        continue
                     if w not in to_return.keys():
                         to_return[w] = {}
                         to_return[w][pg_id] = 1
