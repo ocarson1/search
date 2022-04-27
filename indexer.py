@@ -13,6 +13,7 @@ class Indexer:
             title: str = (page.find('title').text)
             n_regex = '''\[\[[^\[]+?\]\]|[a-zA-Z0-9]+'[a-zA-Z0-9]+|[a-zA-Z0-9]+'''
             words = re.findall(n_regex, title) + (re.findall(n_regex, page.find('text').text)) #Note: currently includes numbers. not sure if issue or not but handout says it is up to our own discretion
+            print(words)
             for word in words:
                 word = word.lower()
                 if word not in to_return.keys():
@@ -31,13 +32,9 @@ class Indexer:
         for word in to_return:
             for pg_id in to_return[word]:
                 to_return[word][pg_id] = (to_return[word][pg_id] / doc_max_freqs[pg_id]) * math.log(len(doc_max_freqs) / len(to_return[word]))
-                print(len)
                 
         print(to_return)
         print(doc_max_freqs)
 
             ## need to implement pg_maxes
             ## will eventually call file_io method with dictionary and titles as parameter etc.
-
-            
-
