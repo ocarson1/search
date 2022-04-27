@@ -45,11 +45,11 @@ class Indexer:
                         link_to = (word.split('|'))[0]
                         word = (word.split('|'))[1]
                     word_lst = re.findall(n_regex, word) 
-                    if title not in pg_links.keys():
-                        pg_links[title] = set()
-                        pg_links[title].add(link_to)
+                    if title not in self.pg_links.keys():
+                        self.pg_links[title] = set()
+                        self.pg_links[title].add(link_to)
                     else:
-                        pg_links[title].add(link_to)
+                        self.pg_links[title].add(link_to)
 
                 for w in word_lst:
                     w = w.lower()
@@ -77,22 +77,23 @@ class Indexer:
             pg_id = titles_to_ids[title]
             weight_dict[pg_id] = {}
             
-            if title not in pg_links:
+            if title not in self.pg_links:
                 for other_pg_id in ids_to_titles.keys(): 
                     if ids_to_titles[other_pg_id] != title:
                         weight_dict[pg_id][other_pg_id] = 0
             else: 
-                for link_to in pg_links[title]: 
+                for link_to in self.pg_links[title]: 
                     link_to_id = titles_to_ids[link_to]
                     if link_to in titles_to_ids.keys() and link_to != title: 
                         weight_dict[pg_id][link_to_id] = 0 
 
+        for k_id in weight_dict: 
+            for j_id in weight_dict[k_id]: 
+                weight_dict[k_id][j_id] = 0.15/len(weight_dict.keys()) + (1 - 0.15) * (1/len(weight_dict[k_id]))
 
             
         print(weight_dict)
 
-        def weight(k_id, j_id): 
-            if ids_to_titles[k_id] in self.pg_links and k_id != j_id
 
 
 
