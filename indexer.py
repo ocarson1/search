@@ -4,6 +4,9 @@ import re
 import math
 from nltk.corpus import stopwords
 STOP_WORDS = set(stopwords.words('english'))
+from nltk.stem import PorterStemmer
+
+
 
 class Indexer:
 
@@ -12,29 +15,33 @@ class Indexer:
         to_return = {}
         doc_max_freqs = {}
         self.weight_dict = {}
+        stemmer = PorterStemmer()
+        ids_to_titles = {}
+        ids_to_pgrank = {}
 
         for page in root:
             pg_id = int(page.find('id').text)
             title: str = (page.find('title').text)
+            ids_to_titles.update({pg_id : title})
+
             n_regex = '''\[\[[^\[]+?\]\]|[a-zA-Z0-9]+'[a-zA-Z0-9]+|[a-zA-Z0-9]+'''
             words = re.findall(n_regex, title) + (re.findall(n_regex, page.find('text').text)) #Note: currently includes numbers. not sure if issue or not but handout says it is up to our own discretion
-            print(words)
             for word in words:
-                word_lst = [word]
+                word_lst = [word] 
 
-                if (re.search('\[\[[^\[]+?\]\]', word) != None): 
-                    word.strip('[]')
+                if ([[re.search('\[\[[^\[]+?\]\]', word) != None]]): 
+                    word = word.strip('[]')
                     link_to = word
                     word_lst = [word]
                     if '|' in word: 
                         link_to = (word.split('|'))[0]
                         word = (word.split('|'))[1]
                         word_lst = re.findall(n_regex, word)
-                    self.weight_dict[title][link_to] = None
 
                 for w in word_lst:
                     w = w.lower()
-                    if w in STOP_WORDS:
+                    stemmer.stem(w)
+                    if w in STOP_WORDS: 
                         continue
                     if w not in to_return.keys():
                         to_return[w] = {}
@@ -48,13 +55,34 @@ class Indexer:
                         doc_max_freqs[pg_id] = 1
                     elif to_return[w][pg_id] > doc_max_freqs[pg_id]:
                         doc_max_freqs[pg_id] = to_return[w][pg_id]
+       
         print(to_return)
         for word in to_return:
             for pg_id in to_return[word]:
-                to_return[word][pg_id] = (to_return[word][pg_id] / doc_max_freqs[pg_id]) * math.log(len(doc_max_freqs) / len(to_return[word]))                
+                to_return[word][pg_id] = (to_return[word][pg_id] / doc_max_freqs[pg_id]) * math.log(len(doc_max_freqs) / len(to_return[word]))
+
+        file_io.write_title_file(titles, ids_to_titles)
+        file_io.write_words_file(words, to_return)
         print(to_return)
         print(doc_max_freqs)
 
 
     def weightCalculator(self, j_id : int, k_id : int): 
-        for k_title in self.weight_dict:
+        print(3)
+        
+            
+
+
+
+
+
+            ## need to implement pg_maxes
+            ## will eventually call file_io method with dictionary and titles as parameter etc.
+
+
+
+        
+        
+        
+            
+
