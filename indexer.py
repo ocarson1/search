@@ -17,7 +17,7 @@ class Indexer:
             n_regex = '''\[\[[^\[]+?\]\]|[a-zA-Z0-9]+'[a-zA-Z0-9]+|[a-zA-Z0-9]+'''
             words = re.findall(n_regex, title) + (re.findall(n_regex, page.find('text').text)) #Note: currently includes numbers. not sure if issue or not but handout says it is up to our own discretion
             for word in words:
-                word_lst = [word]
+                word_lst = [word] 
 
                 if (re.search('\[\[[^\[]+?\]\]', word) != None): 
                     word.strip('[]')
@@ -27,7 +27,6 @@ class Indexer:
                         link_to = (word.split('|'))[0]
                         word = (word.split('|'))[1]
                         word_lst = re.findall(n_regex, word)
-                    self.weight_dict[title][link_to] = None
 
                 for w in word_lst:
                     w = w.lower()
@@ -55,7 +54,7 @@ class Indexer:
 
 
     def weightCalculator(self, j_id : int, k_id : int): 
-        for k_title in self.weight_dict:
+            
 
 
 
