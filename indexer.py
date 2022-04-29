@@ -11,7 +11,7 @@ from nltk.stem import PorterStemmer
 
 class Indexer:
 
-    def __init__(self, xml, titles, docs, words):
+    def __init__(self, xml, titles_file, docs_file, words_file):
         root = et.parse(xml).getroot()
         to_return = {}
         doc_max_freqs = {}
@@ -19,7 +19,7 @@ class Indexer:
         stemmer = PorterStemmer()
         self.ids_to_titles = {}
         self.titles_to_ids = {}
-        ids_to_pgrank = {}
+        #ids_to_pgrank = {}
         self.pg_links = {}
         
 
@@ -71,9 +71,16 @@ class Indexer:
 
         for word in to_return:
             for pg_id in to_return[word]:
-                to_return[word][pg_id] = (to_return[word][pg_id] / doc_max_freqs[pg_id]) * math.log(len(doc_max_freqs) / len(to_return[word]))                
+                to_return[word][pg_id] = (to_return[word][pg_id] / doc_max_freqs[pg_id]) * math.log(len(doc_max_freqs) / len(to_return[word]))           
+
         self.calculate_weights()
-        self.pagerank()
+        ids_to_pgranks = self.pagerank()
+        #print(ids_to_pgranks)
+
+        file_io.write_title_file(titles_file, self.ids_to_titles)  
+        file_io.write_docs_file(docs_file, ids_to_pgranks)  
+        file_io.write_words_file(words_file, to_return) 
+
         
 
     def calculate_weights(self):
@@ -100,12 +107,12 @@ class Indexer:
 ##
         for k_id in self.weight_dict.keys(): #maybe we can combine this with the first loop?
             if self.ids_to_titles[k_id] not in self.pg_links.keys():
-                print("no links")
+                #print("no links")
                 for other_id in self.weight_dict.keys():
                     if other_id != k_id:
                         self.weight_dict[k_id][other_id] += (1 - 0.15) * (1/ (len(self.titles_to_ids.keys()) - 1))
             else:
-                print("links")
+                #print("links")
                 for other_id in self.weight_dict[k_id]:              
                     if self.ids_to_titles[other_id] in self.pg_links[self.ids_to_titles[k_id]]:
                         self.weight_dict[k_id][other_id] += (1 - 0.15) * (1/len(self.pg_links[self.ids_to_titles[k_id]]))
@@ -129,7 +136,8 @@ class Indexer:
                 for k in self.ids_to_titles.keys():
                     if j in self.weight_dict[k]:
                         next[j] = next[j] + self.weight_dict[k][j] * curr[k]
-        print(next)
+        return next
+        #print(next)
             
 
     def distance(self, x, y):
