@@ -3,6 +3,7 @@ import xml.etree.ElementTree as et
 import file_io
 import re
 import math
+import sys
 from nltk.corpus import stopwords
 STOP_WORDS = set(stopwords.words('english'))
 from nltk.stem import PorterStemmer
@@ -10,8 +11,10 @@ from nltk.stem import PorterStemmer
 
 
 class Indexer:
-
-    def __init__(self, xml, titles_file, docs_file, words_file):
+    
+    
+    def __init__(self, xml, titles_file, docs_file, words_file) -> None:
+        
         root = et.parse(xml).getroot()
         to_return = {}
         doc_max_freqs = {}
@@ -150,6 +153,19 @@ class Indexer:
         return math.sqrt(distance)
 
 
+def main(): 
+        if len(sys.argv) - 1 == 4:
+            xml = sys.argv[1]
+            titles_file = sys.argv[2]
+            docs_file = sys.argv[3]
+            words_file = sys.argv[4]
+            print("yay well done")
+            indexer = Indexer(xml, titles_file, docs_file, words_file)
+        else: 
+            print("error: incorrect argument number")
+
+if __name__ == "__main__":
+    main()
 
         
         
