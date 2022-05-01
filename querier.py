@@ -1,3 +1,4 @@
+from numpy import sort
 from regex import P
 import file_io
 import sys
@@ -23,26 +24,41 @@ class Querier:
 
         self.query_terms = []
         self.repl()
+        
 
-
-    
+        print("working")
 
 
     def repl(self): 
         stemmer = PorterStemmer()
         n_regex = '''[a-zA-Z0-9]+'[a-zA-Z0-9]+|[a-zA-Z0-9]+'''
-        while input() != ":quit": 
-            print("Enter Query")
+        print("Enter Query")
+        while input() != ":quit":
+            pg_to_score = {}
             input_terms =  re.findall(n_regex, input())
             for term in input_terms: 
                 stemmer.stem(term)
                 if term not in STOP_WORDS: 
                     self.query_terms.append(term)
+            for word in self.query_terms:
+                for doc in self.words_to_doc_relevance[word]:
+                    if doc not in pg_to_score.keys():
+                        pg_to_score[doc] = self.words_to_doc_relevance[word][doc]
+                    else:
+                        pg_to_score[doc] += self.words_to_doc_relevance[word][doc]
+        
+            print(pg_to_score)
+        
+            sort_pages = sorted(pg_to_score.items(), key=lambda x: x[1], reverse=True)
+
             
+            for counter in range(0, 11):
+                print(sort_pages[counter][0], sort_pages[counter][1])
         
 
 
-def main(self): 
+
+def main():
     if(sys.argv[1] == "--pagerank"): 
         is_pg_rank = True
         titles_file = sys.argv[2]
@@ -53,7 +69,7 @@ def main(self):
         docs_file = sys.argv[2]
         words_file = sys.argv[3]
         is_pg_rank = False
-    q = Querier(titles_file, docs_file, words_file, is_pg_rank)
+    Querier(titles_file, docs_file, words_file, is_pg_rank)
     
 if __name__ == "__main__":
     main()
