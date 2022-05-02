@@ -95,19 +95,15 @@ class Indexer:
             for title in self.titles_to_ids.keys(): 
                 other_id = self.titles_to_ids[title]
                 self.weight_dict[pg_id][other_id] = 0.15/len(self.titles_to_ids.keys())
-        
-            ##
-            
-      ##      if title not in self.pg_links:
-        ##        for other_pg_id in self.ids_to_titles.keys(): 
-         ##           if self.ids_to_titles[other_pg_id] != title:
-          ##              self.weight_dict[pg_id][other_pg_id] = 0
-       ##     else: 
-       ##         for link_to in self.pg_links[title]: 
-        ##            link_to_id = self.titles_to_ids[link_to]
-           ##        if link_to in self.titles_to_ids.keys() and link_to != title: 
-                   ##     self.weight_dict[pg_id][link_to_id] = 0
-##
+        id_to_link_number = {}
+        for title in self.pg_links.keys(): 
+            id_to_link_number[self.titles_to_ids[title]] = 0
+            for link_to in self.pg_links[title]: 
+                if link_to in self.titles_to_ids.keys(): 
+                    id_to_link_number[self.titles_to_ids[title]] += 1
+
+
+
         for k_id in self.weight_dict.keys(): #maybe we can combine this with the first loop?
             if self.ids_to_titles[k_id] not in self.pg_links.keys():
                 #print("no links")
@@ -116,12 +112,10 @@ class Indexer:
                         self.weight_dict[k_id][other_id] += (1 - 0.15) * (1/ (len(self.titles_to_ids.keys()) - 1))
             else:
                 #print("links")
-                for other_id in self.weight_dict[k_id]:             
+                for other_id in self.weight_dict[k_id]:           
                     if self.ids_to_titles[other_id] in self.pg_links[self.ids_to_titles[k_id]]:
-                        self.weight_dict[k_id][other_id] += (1 - 0.15) * (1/len(self.pg_links[self.ids_to_titles[k_id]]))
-                     #switch weight dict to the other one
-        #print(self.weight_dict)
-
+                        self.weight_dict[k_id][other_id] += (1 - 0.15) * (1/id_to_link_number[k_id])
+                    
     def pagerank(self):
         delta = .001
         curr = {}
@@ -136,8 +130,9 @@ class Indexer:
                 for k in self.ids_to_titles.keys():
                     if j in self.weight_dict[k]:
                         next[j] = next[j] + self.weight_dict[k][j] * curr[k]
+        print(next)
+        print(sum(next.values()))
         return next
-        #print(next)
             
 
     def distance(self, x, y):
