@@ -8,20 +8,17 @@ from nltk.corpus import stopwords
 STOP_WORDS = set(stopwords.words('english'))
 from nltk.stem import PorterStemmer
 
-
-
 class Indexer:
     
     def __init__(self, xml, titles_file, docs_file, words_file) -> None:
         
         root = et.parse(xml).getroot()
-        to_return = {}
+        words_to_doc_relv = {}
         doc_max_freqs = {}
         self.weight_dict = {}
         stemmer = PorterStemmer()
         self.ids_to_titles = {}
         self.titles_to_ids = {}
-        #ids_to_pgrank = {}
         self.pg_links = {}
         
 
@@ -55,22 +52,22 @@ class Indexer:
                     stemmer.stem(w)
                     if w in STOP_WORDS: 
                         continue
-                    if w not in to_return.keys():
-                        to_return[w] = {}
-                        to_return[w][pg_id] = 1
+                    if w not in words_to_doc_relv.keys():
+                        words_to_doc_relv[w] = {}
+                        words_to_doc_relv[w][pg_id] = 1
                     else:
-                        if pg_id not in to_return[w].keys():
-                            to_return[w][pg_id] = 1
+                        if pg_id not in words_to_doc_relv[w].keys():
+                            words_to_doc_relv[w][pg_id] = 1
                         else:
-                            to_return[w][pg_id] += 1
+                            words_to_doc_relv[w][pg_id] += 1
                     if pg_id not in doc_max_freqs:
                         doc_max_freqs[pg_id] = 1
-                    elif to_return[w][pg_id] > doc_max_freqs[pg_id]:
-                        doc_max_freqs[pg_id] = to_return[w][pg_id]
+                    elif words_to_doc_relv[w][pg_id] > doc_max_freqs[pg_id]:
+                        doc_max_freqs[pg_id] = words_to_doc_relv[w][pg_id]
 
-        for word in to_return:
-            for pg_id in to_return[word]:
-                to_return[word][pg_id] = (to_return[word][pg_id] / doc_max_freqs[pg_id]) * math.log(len(doc_max_freqs) / len(to_return[word]))           
+        for word in words_to_doc_relv:
+            for pg_id in words_to_doc_relv[word]:
+                words_to_doc_relv[word][pg_id] = (words_to_doc_relv[word][pg_id] / doc_max_freqs[pg_id]) * math.log(len(doc_max_freqs) / len(words_to_doc_relv[word]))           
 
         self.calculate_weights()
         ids_to_pgranks = self.pagerank()
@@ -78,7 +75,7 @@ class Indexer:
 
         file_io.write_title_file(titles_file, self.ids_to_titles)  
         file_io.write_docs_file(docs_file, ids_to_pgranks)  
-        file_io.write_words_file(words_file, to_return) 
+        file_io.write_words_file(words_file, words_to_doc_relv) 
 
         
 
@@ -109,14 +106,9 @@ class Indexer:
                     if other_title != k_title:
                         self.pg_links[k_title].add(other_title)
 
-            print(self.pg_links[self.ids_to_titles[k_id]])
-            print(id_to_link_number[k_id])
-
             for j_id in self.weight_dict[k_id]:
                 if self.ids_to_titles[j_id] in self.pg_links[self.ids_to_titles[k_id]]:
                     self.weight_dict[k_id][j_id] = self.weight_dict[k_id][j_id] + (1 - 0.15) * (1/id_to_link_number[k_id])
-
-        print(self.weight_dict)
                 
     def pagerank(self):
         delta = .001
