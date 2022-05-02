@@ -120,9 +120,6 @@ class Indexer:
                     if self.ids_to_titles[other_id] in self.pg_links[self.ids_to_titles[k_id]]:
                         self.weight_dict[k_id][other_id] += (1 - 0.15) * (1/len(self.pg_links[self.ids_to_titles[k_id]]))
                      #switch weight dict to the other one
-
-    
-            
         #print(self.weight_dict)
 
     def pagerank(self):
