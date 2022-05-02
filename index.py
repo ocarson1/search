@@ -116,7 +116,7 @@ class Indexer:
                         self.weight_dict[k_id][other_id] += (1 - 0.15) * (1/ (len(self.titles_to_ids.keys()) - 1))
             else:
                 #print("links")
-                for other_id in self.weight_dict[k_id]:              
+                for other_id in self.weight_dict[k_id]:             
                     if self.ids_to_titles[other_id] in self.pg_links[self.ids_to_titles[k_id]]:
                         self.weight_dict[k_id][other_id] += (1 - 0.15) * (1/len(self.pg_links[self.ids_to_titles[k_id]]))
                      #switch weight dict to the other one
