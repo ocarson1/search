@@ -153,7 +153,7 @@ class Indexer:
         return math.sqrt(distance)
 
 
-def main(): 
+def main():
         if len(sys.argv) - 1 == 4:
             xml = sys.argv[1]
             titles_file = sys.argv[2]
@@ -162,7 +162,7 @@ def main():
             print("yay well done")
             indexer = Indexer(xml, titles_file, docs_file, words_file)
         else: 
-            print("error: incorrect argument number")
+            print("Error: incorrect number of arguments")
 
 if __name__ == "__main__":
     main()

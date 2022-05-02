@@ -28,10 +28,11 @@ class Querier:
         stemmer = PorterStemmer()
         n_regex = '''[a-zA-Z0-9]+'[a-zA-Z0-9]+|[a-zA-Z0-9]+'''
         print("Enter Query")
-        while input() != ":quit":
+        x = input()
+        while x != ":quit":
             query_terms = []
             pg_to_score = {}
-            input_terms = re.findall(n_regex, input())
+            input_terms = re.findall(n_regex, x)
             for term in input_terms:
                 stemmer.stem(term)
                 if term not in STOP_WORDS:
@@ -56,22 +57,26 @@ class Querier:
                     print(sort_pages[counter][0], sort_pages[counter][1])
             print("clearing")
             print("Enter Query")
+            x = input()
         
 
 
 
 def main():
-    if(sys.argv[1] == "--pagerank"): 
-        is_pg_rank = True
-        titles_file = sys.argv[2]
-        docs_file = sys.argv[3]
-        words_file = sys.argv[4]
+    if len(sys.argv) != 4 or 5:
+        if(sys.argv[1] == "--pagerank"): 
+            is_pg_rank = True
+            titles_file = sys.argv[2]
+            docs_file = sys.argv[3]
+            words_file = sys.argv[4]
+        else:
+            titles_file = sys.argv[1]
+            docs_file = sys.argv[2]
+            words_file = sys.argv[3]
+            is_pg_rank = False
+        Querier(titles_file, docs_file, words_file, is_pg_rank)
     else:
-        titles_file = sys.argv[1]
-        docs_file = sys.argv[2]
-        words_file = sys.argv[3]
-        is_pg_rank = False
-    Querier(titles_file, docs_file, words_file, is_pg_rank)
+        print("Error: incorrect number of arguments")
     
 if __name__ == "__main__":
     main()
