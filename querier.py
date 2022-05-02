@@ -22,25 +22,21 @@ class Querier:
         file_io.read_docs_file(docs_file, self.ids_to_page_ranks)
         file_io.read_words_file(words_file, self.words_to_doc_relevance)
 
-        self.query_terms = []
         self.repl()
-        
 
-        print("working")
-
-
-    def repl(self): 
+    def repl(self):
         stemmer = PorterStemmer()
         n_regex = '''[a-zA-Z0-9]+'[a-zA-Z0-9]+|[a-zA-Z0-9]+'''
         print("Enter Query")
         while input() != ":quit":
+            query_terms = []
             pg_to_score = {}
-            input_terms =  re.findall(n_regex, input())
-            for term in input_terms: 
+            input_terms = re.findall(n_regex, input())
+            for term in input_terms:
                 stemmer.stem(term)
-                if term not in STOP_WORDS: 
-                    self.query_terms.append(term)
-            for word in self.query_terms:
+                if term not in STOP_WORDS:
+                    query_terms.append(term)
+            for word in query_terms:
                 for doc in self.words_to_doc_relevance[word]:
                     if doc not in pg_to_score.keys():
                         pg_to_score[doc] = self.words_to_doc_relevance[word][doc]
@@ -52,8 +48,14 @@ class Querier:
             sort_pages = sorted(pg_to_score.items(), key=lambda x: x[1], reverse=True)
 
             
-            for counter in range(0, 11):
-                print(sort_pages[counter][0], sort_pages[counter][1])
+            if len(sort_pages) < 10:
+                for page in sort_pages:
+                    print(page[0], page[1])
+            else:
+                for counter in range(0, 11):
+                    print(sort_pages[counter][0], sort_pages[counter][1])
+            print("clearing")
+            print("Enter Query")
         
 
 
