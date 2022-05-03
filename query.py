@@ -10,9 +10,8 @@ from nltk.stem import PorterStemmer
 
 class Querier: 
     
-          
-    
     def __init__(self, titles_file, docs_file, words_file, is_pg_rank):
+        """The querier reads xml information from three files and uses a REPL to print the most relevant pages to a user's query"""
         
         self.ids_to_titles = {}
         self.ids_to_page_ranks = {} 
@@ -26,6 +25,9 @@ class Querier:
         self.repl()
 
     def repl(self):
+        """the REPL takes in user input, stems it and removes stop words, then goes through the information read in by the
+        file_io and finds the most relevant documents to the input based upon word relevance and optional document pagerank"""
+        
         stemmer = PorterStemmer()
         n_regex = '''[a-zA-Z0-9]+'[a-zA-Z0-9]+|[a-zA-Z0-9]+'''
         print("\n** type ':quit' to quit the program **")
@@ -35,10 +37,12 @@ class Querier:
             query_terms = []
             pg_to_score = {}
             input_terms = re.findall(n_regex, x)
+            #  stems and removes stop words from the input
             for term in input_terms:
                 stemmer.stem(term)
                 if term not in STOP_WORDS:
                     query_terms.append(term)
+
             for word in query_terms:
                 if word in self.words_to_doc_relevance.keys():
                     for doc in self.words_to_doc_relevance[word]:
@@ -52,29 +56,22 @@ class Querier:
                                 pg_to_score[doc] += self.words_to_doc_relevance[word][doc] * self.ids_to_page_ranks[doc]
                             else: pg_to_score[doc] += self.words_to_doc_relevance[word][doc]
             print("\nRESULTS:")
+
+            # case in which the query cannot be found in the wiki
             if len(pg_to_score) == 0:
                 print("No results found, try another query")
             else:
-
-        
                 sort_pages = sorted(pg_to_score.items(), key=lambda x: x[1], reverse=True)
-
-
                 if len(sort_pages) < 10:
                     for page in sort_pages:
-                        #print(page[0], page[1])
                         print(self.ids_to_titles[page[0]])
                 else:
                     for i in range(0, 11):
-                        #print(sort_pages[i][0], sort_pages[i][1])
                         print(self.ids_to_titles[sort_pages[i][0]])
-            
+
             print("\nENTER QUERY:")
-            x = input()
+            x = input() #asks for input again so that the while loop can be repeated or quitted
         
-
-
-
 def main():
     if len(sys.argv) != 4 or 5:
         if(sys.argv[1] == "--pagerank"): 
