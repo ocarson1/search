@@ -41,7 +41,7 @@ class Querier:
             for term in input_terms:
                 stemmer.stem(term)
                 if term not in STOP_WORDS:
-                    query_terms.append(term)
+                    query_terms.append(term.lower())
 
             for word in query_terms:
                 if word in self.words_to_doc_relevance.keys():
